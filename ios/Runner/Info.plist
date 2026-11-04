@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Verify your identity with Face ID when checking in and checking out.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Mavens verifies on-site attendance inside the office area.</string>
 	<key>CADisableMinimumFrameDurationOnPhone</key>

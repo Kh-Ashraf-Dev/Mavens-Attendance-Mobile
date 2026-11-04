@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'planning_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/services/locator/service_locator.dart';
 import '../../../../../core/widgets/common.dart';
@@ -7,7 +8,8 @@ import '../../../../../config/theme/app_theme.dart';
 import '../../view_model/team_cubit.dart';
 
 class TeamScreen extends StatefulWidget {
-  const TeamScreen({super.key});
+  final bool isAdmin;
+  const TeamScreen({super.key, this.isAdmin = false});
   @override
   State<TeamScreen> createState() => _TeamScreenState();
 }
@@ -47,6 +49,17 @@ class _TeamScreenState extends State<TeamScreen> {
               'Your people',
               'Attendance and annual leave, together.',
             ),
+            OutlinedButton.icon(
+              onPressed: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => PlanningScreen(isAdmin: widget.isAdmin),
+                ),
+              ),
+              icon: const Icon(Icons.calendar_month),
+              label: const Text('Weekly schedule & attendance permissions'),
+            ),
+            const SizedBox(height: 16),
             TextField(
               decoration: const InputDecoration(
                 hintText: 'Find a team member',

@@ -164,7 +164,7 @@ class _AppShellState extends State<AppShell> {
             balance: Map<String, dynamic>.from(data!['balance']),
           )
         : hasTeam && index == 2
-        ? const TeamScreen()
+        ? TeamScreen(isAdmin: user['role'] == 'ADMIN')
         : MessagesScreen(user: user);
     return Scaffold(
       appBar: AppBar(

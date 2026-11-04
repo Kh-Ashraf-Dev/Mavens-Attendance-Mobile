@@ -153,12 +153,18 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Schedule not set'), findsOneWidget);
       expect(
-        find.text('Ask Moataz to configure your hiring date'),
-        findsOneWidget,
-      );
-      expect(
         tester.widget<FilledButton>(find.byType(FilledButton).first).onPressed,
         isNull,
+      );
+
+      await tester.scrollUntilVisible(
+        find.text('Ask Moataz to configure your hiring date'),
+        80,
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Ask Moataz to configure your hiring date'),
+        findsOneWidget,
       );
       await tester.pumpWidget(const SizedBox());
     },

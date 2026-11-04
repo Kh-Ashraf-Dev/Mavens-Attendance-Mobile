@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'config/theme/app_theme.dart';
 import 'core/services/locator/service_locator.dart';
 import 'core/widgets/app_shell.dart';
+import 'core/widgets/welcome_splash.dart';
 import 'features/auth/presentation/views/screens/login_screen.dart';
 
 Future<void> main() async {
@@ -28,12 +29,15 @@ class MavensApp extends StatefulWidget {
 
 class _MavensAppState extends State<MavensApp> {
   late bool signedIn = widget.signedIn;
+  bool welcoming = true;
   @override
   Widget build(BuildContext context) => MaterialApp(
     title: 'Mavens Attendance',
     debugShowCheckedModeBanner: false,
     theme: AppTheme.light,
-    home: signedIn
+    home: welcoming
+        ? WelcomeSplash(onComplete: () => setState(() => welcoming = false))
+        : signedIn
         ? AppShell(onLogout: () => setState(() => signedIn = false))
         : LoginScreen(onLogin: () => setState(() => signedIn = true)),
   );

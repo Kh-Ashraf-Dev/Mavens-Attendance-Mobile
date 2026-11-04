@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../../core/services/biometric_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/services/locator/service_locator.dart';
 import '../../../../../core/services/location_service.dart';
@@ -31,7 +32,8 @@ class _TodayScreenState extends State<TodayScreen> {
   Future<void> punch(Map data, bool checkout) async {
     setState(() => punching = true);
     try {
-      final gps = data['mode'] == 'SITE'
+      await BiometricService().verify(checkout);
+      final gps = data['mode'] == 'SITE' && data['anywhere'] != true
           ? await locator<LocationService>().capture()
           : <String, dynamic>{};
       final result = checkout
@@ -190,6 +192,18 @@ class _TodayScreenState extends State<TodayScreen> {
                 ],
               ),
             ),
+            const SizedBox(height: 12),
+            Text(
+              d['anywhere'] == true
+                  ? 'Mission approved · Check in and out from anywhere'
+                  : 'Fingerprint or Face ID required for every check-in and check-out',
+              style: const TextStyle(fontSize: 12, color: AppTheme.muted),
+            ),
+            if (d['checkoutFrom'] != null)
+              Text(
+                'Checkout available from ${d['checkoutFrom']} · Cairo time',
+                style: const TextStyle(fontSize: 12, color: AppTheme.muted),
+              ),
             const SizedBox(height: 20),
             Row(
               children: [
@@ -325,7 +339,7 @@ class _TodayScreenState extends State<TodayScreen> {
             else
               const EmptyPanel(
                 'Waiting for your schedule',
-                'Your admin will choose the working days and home days.',
+                'Your manager can choose home days for each week.',
                 icon: Icons.date_range_outlined,
               ),
             const SizedBox(height: 26),

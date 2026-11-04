@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:timezone/timezone.dart' as tz;
 import '../../../../../core/services/biometric_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../../core/services/locator/service_locator.dart';
@@ -9,6 +11,9 @@ import '../../../../../config/theme/app_theme.dart';
 import '../../view_model/attendance_cubit.dart';
 
 class TodayScreen extends StatefulWidget {
+  /// Returns the current hour in Cairo; overridable in tests.
+  static int Function() cairoHour = () =>
+      tz.TZDateTime.now(tz.getLocation('Africa/Cairo')).hour;
   const TodayScreen({super.key});
   @override
   State<TodayScreen> createState() => _TodayScreenState();
@@ -17,14 +22,27 @@ class TodayScreen extends StatefulWidget {
 class _TodayScreenState extends State<TodayScreen> {
   late final AttendanceCubit cubit = locator();
   bool punching = false;
+  Timer? clockTimer;
+
+  /// Punch buttons are shown only between 8:00 AM and 8:00 PM Cairo time.
+  /// Lateness and the 10:00–18:00 shift are still calculated by the server.
+  bool get punchWindowOpen {
+    final hour = TodayScreen.cairoHour();
+    return hour >= 8 && hour < 20;
+  }
+
   @override
   void initState() {
     super.initState();
     cubit.overview();
+    clockTimer = Timer.periodic(const Duration(minutes: 1), (_) {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
   void dispose() {
+    clockTimer?.cancel();
     cubit.close();
     super.dispose();
   }
@@ -157,38 +175,62 @@ class _TodayScreenState extends State<TodayScreen> {
                     ],
                   ),
                   const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    child: FilledButton.icon(
-                      style: FilledButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: AppTheme.navy,
+                  if (!punchWindowOpen)
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      onPressed:
-                          punching ||
-                              complete ||
-                              mode == 'OFF' ||
-                              mode == 'UNCONFIGURED'
-                          ? null
-                          : () => punch(d, checked),
-                      icon: punching
-                          ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : Icon(checked ? Icons.logout : Icons.fingerprint),
-                      label: Text(
-                        punching
-                            ? 'Verifying attendance…'
-                            : complete
-                            ? 'Shift completed'
-                            : checked
-                            ? 'Check out'
-                            : 'Check in',
+                      child: const Row(
+                        children: [
+                          Icon(Icons.schedule, color: Colors.white70, size: 18),
+                          SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'Check-in and check-out are available from 8:00 AM to 8:00 PM.',
+                              style: TextStyle(color: Colors.white70),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    SizedBox(
+                      width: double.infinity,
+                      child: FilledButton.icon(
+                        style: FilledButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: AppTheme.navy,
+                        ),
+                        onPressed:
+                            punching ||
+                                complete ||
+                                mode == 'OFF' ||
+                                mode == 'UNCONFIGURED'
+                            ? null
+                            : () => punch(d, checked),
+                        icon: punching
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Icon(checked ? Icons.logout : Icons.fingerprint),
+                        label: Text(
+                          punching
+                              ? 'Verifying attendance…'
+                              : complete
+                              ? 'Shift completed'
+                              : checked
+                              ? 'Check out'
+                              : 'Check in',
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
             ),

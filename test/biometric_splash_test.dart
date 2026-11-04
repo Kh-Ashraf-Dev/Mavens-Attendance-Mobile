@@ -63,7 +63,8 @@ void main() {
     var complete = 0;
     final boundary = GlobalKey();
     await tester.runAsync(() async {
-      final font=FontLoader('Montserrat')..addFont(rootBundle.load('assets/fonts/Montserrat.ttf'));
+      final font = FontLoader('Montserrat')
+        ..addFont(rootBundle.load('assets/fonts/Montserrat.ttf'));
       await font.load();
     });
     await tester.pumpWidget(
@@ -75,7 +76,12 @@ void main() {
         ),
       ),
     );
-    await tester.runAsync(() => precacheImage(const AssetImage('assets/images/mavens-logo-white.png'), boundary.currentContext!));
+    await tester.runAsync(
+      () => precacheImage(
+        const AssetImage('assets/images/mavens-logo-white.png'),
+        boundary.currentContext!,
+      ),
+    );
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 1600));
     expect(find.text('Welcome Mavens Team'), findsOneWidget);

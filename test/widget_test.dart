@@ -144,6 +144,7 @@ void main() {
     (tester) async {
       locator.unregister<AttendanceRepository>();
       locator.registerSingleton<AttendanceRepository>(UnconfiguredAttendance());
+      TodayScreen.cairoHour = () => 11;
       await tester.pumpWidget(
         MaterialApp(
           theme: AppTheme.light,
@@ -198,4 +199,27 @@ void main() {
       await tester.pumpWidget(const SizedBox());
     },
   );
+  testWidgets('Punch button is hidden outside 8 AM to 8 PM Cairo time', (
+    tester,
+  ) async {
+    locator.unregister<AttendanceRepository>();
+    locator.registerSingleton<AttendanceRepository>(UnconfiguredAttendance());
+    TodayScreen.cairoHour = () => 21;
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light,
+        home: const Scaffold(body: TodayScreen()),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Check in'), findsNothing);
+    expect(
+      find.text(
+        'Check-in and check-out are available from 8:00 AM to 8:00 PM.',
+      ),
+      findsOneWidget,
+    );
+    TodayScreen.cairoHour = () => 11;
+    await tester.pumpWidget(const SizedBox());
+  });
 }

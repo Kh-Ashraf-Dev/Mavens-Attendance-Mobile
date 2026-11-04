@@ -388,9 +388,15 @@ class _LeaveScreenState extends State<LeaveScreen> {
                     ),
                     const SizedBox(height: 14),
                     if (inbox)
-                      Text(
-                        'Employee: ${row['employeeId']}',
-                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 6),
+                        child: Text(
+                          '${row['employeeName'] ?? 'Team member'}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16,
+                          ),
+                        ),
                       ),
                     Text(
                       '${dateText(row['startDate'])} – ${dateText(row['endDate'])}',

@@ -108,7 +108,7 @@ class _LeaveScreenState extends State<LeaveScreen> {
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    'Your manager will review your request. Working days only.',
+                    'Moataz will review your request. Working days only.',
                     style: TextStyle(color: AppTheme.muted),
                   ),
                   const SizedBox(height: 20),
@@ -439,7 +439,9 @@ class _LeaveScreenState extends State<LeaveScreen> {
                               },
                         child: const Text('Cancel request'),
                       ),
+                    // Only Moataz (ADMIN) can approve or reject; supervisors view only.
                     if (inbox &&
+                        widget.user['role'] == 'ADMIN' &&
                         row['status'] == 'PENDING' &&
                         row['employeeId'] != widget.user['id'])
                       Row(

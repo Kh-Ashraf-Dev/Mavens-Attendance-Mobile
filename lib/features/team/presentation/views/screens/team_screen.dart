@@ -197,6 +197,11 @@ class _TeamScreenState extends State<TeamScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
+                        'Contract renewal: ${row['user']['contractRenewalDate'] == null ? 'Not set' : dateText(row['user']['contractRenewalDate'])}',
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
                         'Approved: ${number(row['balance']['used'])} · Pending: ${row['balance']['pending']}',
                         style: const TextStyle(
                           fontSize: 12,

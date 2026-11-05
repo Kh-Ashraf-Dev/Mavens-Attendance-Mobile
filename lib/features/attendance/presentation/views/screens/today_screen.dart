@@ -51,7 +51,9 @@ class _TodayScreenState extends State<TodayScreen> {
     setState(() => punching = true);
     try {
       await BiometricService().verify(checkout);
-      final gps = data['mode'] == 'SITE' && data['anywhere'] != true
+      final remoteCheckout = checkout && data['checkoutAnywhere'] == true;
+      final gps =
+          data['mode'] == 'SITE' && data['anywhere'] != true && !remoteCheckout
           ? await locator<LocationService>().capture()
           : <String, dynamic>{};
       final result = checkout
@@ -167,11 +169,13 @@ class _TodayScreenState extends State<TodayScreen> {
                     style: const TextStyle(color: Colors.white70),
                   ),
                   const SizedBox(height: 24),
-                  const Row(
+                  Row(
                     children: [
-                      Expanded(child: _Shift('START', '10:00 AM')),
-                      Expanded(child: _Shift('END', '6:00 PM')),
-                      Expanded(child: _Shift('GRACE', '30 min')),
+                      const Expanded(child: _Shift('START', '10:00 AM')),
+                      const Expanded(child: _Shift('END', '6:00 PM')),
+                      Expanded(
+                        child: _Shift('GRACE', '${d['graceMinutes'] ?? 15} min'),
+                      ),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -241,6 +245,11 @@ class _TodayScreenState extends State<TodayScreen> {
                   : 'Fingerprint or Face ID required for every check-in and check-out',
               style: const TextStyle(fontSize: 12, color: AppTheme.muted),
             ),
+            if (d['checkoutAnywhere'] == true && d['anywhere'] != true)
+              const Text(
+                'Approved by Moataz · Check out from anywhere',
+                style: TextStyle(fontSize: 12, color: AppTheme.muted),
+              ),
             if (d['checkoutFrom'] != null)
               Text(
                 'Checkout available from ${d['checkoutFrom']} · Cairo time',
@@ -330,6 +339,47 @@ class _TodayScreenState extends State<TodayScreen> {
                   ],
                 ),
               ),
+            if (user['role'] != 'ADMIN') ...[
+              const SizedBox(height: 14),
+              Panel(
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: const Color(0xffedf3fa),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: const Icon(
+                        Icons.event_repeat_outlined,
+                        color: AppTheme.blue,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Contract renewal',
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                          Text(
+                            user['contractRenewalDate'] == null
+                                ? 'Not set yet'
+                                : dateText(user['contractRenewalDate']),
+                            style: const TextStyle(
+                              color: AppTheme.muted,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             const SizedBox(height: 26),
             const SectionTitle(
               'Your weekly rhythm',
